@@ -25,15 +25,15 @@ repositories {
 }
 
 base {
-    archivesName = "Infwhat_Botania_Additons-1.18.2-Forge"
+    archivesName = "Infwhat_Botania_Additions-1.18.2-Forge"
 }
 
 tasks.named('jar', Jar).configure {
-    archiveFileName = "Infwhat_Botania_Additons-${project.minecraft_version}-Forge-${project.mod_version}.jar"
+    archiveFileName = "Infwhat_Botania_Additions-${project.minecraft_version}-Forge-${project.mod_version}.jar"
 }
 
 tasks.matching { it.name == 'reobfJar' }.configureEach {
-    archiveFileName = "Infwhat_Botania_Additons-${project.minecraft_version}-Forge-${project.mod_version}.jar"
+    archiveFileName = "Infwhat_Botania_Additions-${project.minecraft_version}-Forge-${project.mod_version}.jar"
 }
 
 // Mojang ships Java 17 to end users in 1.18.2, so mods target Java 17.
