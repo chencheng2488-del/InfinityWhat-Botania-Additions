@@ -1,0 +1,18 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.bandybus.infwhat.botania.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "infwhat_botania.refmap.json",
+  "mixins": [
+    "RunicAltarBlockEntityMixin",
+    "GaiaGuardianEntityMixin",
+    "GaiaGuardianEntityAccessor",
+    "FluidGeneratorAccessor",
+    "GourmaryllisAccessor",
+    "MunchdewAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

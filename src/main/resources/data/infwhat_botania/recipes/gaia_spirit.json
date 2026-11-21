@@ -1,0 +1,24 @@
+{
+  "type": "infwhat_botania:gated_shapeless",
+  "group": "",
+  "ingredients": [
+    {
+      "item": "botania:terrasteel_ingot"
+    },
+    {
+      "item": "botania:elementium_ingot"
+    },
+    {
+      "item": "botania:pixie_dust"
+    },
+    {
+      "item": "botania:pixie_dust"
+    },
+    {
+      "item": "botania:mana_diamond"
+    }
+  ],
+  "result": {
+    "item": "botania:life_essence"
+  }
+}

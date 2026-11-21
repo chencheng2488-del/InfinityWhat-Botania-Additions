@@ -1,0 +1,9 @@
+accessWidener v2 named
+
+# The custom additive mana-beam render type needs the same render state shards that Forge
+# exposes through its access transformer.
+accessible class net/minecraft/client/renderer/RenderStateShard$ShaderStateShard
+accessible class net/minecraft/client/renderer/RenderStateShard$TransparencyStateShard
+accessible class net/minecraft/client/renderer/RenderStateShard$CullStateShard
+accessible class net/minecraft/client/renderer/RenderStateShard$WriteMaskStateShard
+accessible class net/minecraft/client/renderer/RenderType$CompositeState

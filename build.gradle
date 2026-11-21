@@ -1,0 +1,79 @@
+plugins {
+    id 'fabric-loom' version '1.10.5'
+    id 'maven-publish'
+}
+
+version = project.mod_version
+group = project.mod_group_id
+
+base {
+    archivesName = "Infwhat_Botania_Additons-${project.minecraft_version}-Fabric"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        // Botania and JEI artifacts.
+        url = 'https://maven.blamejared.com'
+        content {
+            includeGroup 'vazkii.botania'
+            includeGroup 'mezz.jei'
+        }
+    }
+}
+
+loom {
+    accessWidenerPath = file("src/main/resources/infwhat_botania.accesswidener")
+    mixin {
+        defaultRefmapName = "infwhat_botania.refmap.json"
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings loom.officialMojangMappings()
+
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+    // Botania is required at runtime. The Maven artifact is compile-only and is never bundled
+    // into this add-on; the same applies to the optional JEI integration.
+    modCompileOnly("vazkii.botania:Botania:${project.botania_version}") { transitive = false }
+    modCompileOnly("mezz.jei:jei-1.20.1-fabric:${project.jei_version}") { transitive = false }
+}
+
+processResources {
+    inputs.property "version", project.version
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 17
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+    withSourcesJar()
+}
+
+// Deploy the loadable jar to the shared Fabric test instance after every assemble.
+tasks.register('deployToXrk') {
+    dependsOn 'remapJar'
+    doLast {
+        copy {
+            from layout.buildDirectory.file(
+                    "libs/Infwhat_Botania_Additons-${project.minecraft_version}-Fabric-${project.mod_version}.jar")
+            into 'D:/xrk/versions/1.20.1-Fabric 0.20.1/mods'
+        }
+    }
+}
+
+tasks.named('assemble').configure {
+    dependsOn tasks.named('deployToXrk')
+}

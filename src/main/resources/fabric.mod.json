@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "infwhat_botania",
+  "icon": "logo.png",
+  "version": "${version}",
+  "name": "Infinity What:Botania Additions",
+  "description": "Optional Botania addition for Infinity What. Adds a configurable mana well, wireless mana endpoints and a channel linker; requires Infinity What and Botania.",
+  "authors": [
+    "BandyBus"
+  ],
+  "license": "Apache-2.0",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.bandybus.infwhat.botania.InfinityWhatBotania"
+    ],
+    "client": [
+      "com.bandybus.infwhat.botania.client.ClientInit"
+    ],
+    "jei_mod_plugin": [
+      "com.bandybus.infwhat.botania.compat.jei.JeiIntegration"
+    ]
+  },
+  "mixins": [
+    "infwhat_botania.mixins.json"
+  ],
+  "accessWidener": "infwhat_botania.accesswidener",
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": ">=1.20.1 <1.20.2",
+    "java": ">=17",
+    "fabric-api": "*",
+    "infwhat": ">=2.2.0",
+    "botania": ">=1.20.1-456"
+  }
+}

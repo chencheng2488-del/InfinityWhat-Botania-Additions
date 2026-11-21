@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "infwhat_botania:block/mana_anchor"
+    }
+  }
+}

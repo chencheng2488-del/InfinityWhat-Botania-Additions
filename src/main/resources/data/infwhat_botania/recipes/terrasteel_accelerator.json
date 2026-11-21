@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "LTL",
+    "TDT",
+    "LTL"
+  ],
+  "key": {
+    "L": { "item": "botania:livingrock" },
+    "T": { "item": "botania:terrasteel_ingot" },
+    "D": { "item": "botania:mana_diamond" }
+  },
+  "result": { "item": "infwhat_botania:terrasteel_accelerator" }
+}
