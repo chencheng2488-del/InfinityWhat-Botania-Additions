@@ -16,7 +16,7 @@ version = mod_version
 group = mod_group_id
 
 base {
-    archivesName = "Infwhat_Botania_Additons-1.16.5-Forge"
+    archivesName = "Infwhat_Botania_Additions-1.16.5-Forge"
 }
 
 // Minecraft 1.16.5 ships Java 8, so this mod must target Java 8.
@@ -109,7 +109,7 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 jar {
-    archiveFileName = "Infwhat_Botania_Additons-${project.minecraft_version}-Forge-${project.mod_version}.jar"
+    archiveFileName = "Infwhat_Botania_Additions-${project.minecraft_version}-Forge-${project.mod_version}.jar"
     manifest {
         attributes([
                 "Specification-Title"     : mod_id,
