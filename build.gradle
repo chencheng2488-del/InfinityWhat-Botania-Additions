@@ -1,0 +1,125 @@
+buildscript {
+    repositories {
+        maven { url = 'https://maven.minecraftforge.net' }
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'java-library'
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = "Infwhat_Botania_Additons-1.16.5-Forge"
+}
+
+// Minecraft 1.16.5 ships Java 8, so this mod must target Java 8.
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+minecraft {
+    // Official (Mojang) mappings for 1.16.5; ForgeGradle reobfuscates the final jar to SRG.
+    mappings channel: 'official', version: project.minecraft_version
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                infwhat_botania {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        server {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            arg '--nogui'
+
+            mods {
+                infwhat_botania {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://maven.minecraftforge.net' }
+    // Local mod jars. A flatDir repository (instead of files(...)) is required so that
+    // fg.deobf can remap the production jars from SRG to the official dev mappings.
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:' + project.minecraft_version + '-' + project.forge_version
+
+    // Botania and its APIs are compile-only and are never bundled into this add-on.
+    compileOnly fg.deobf('local:Botania:1.16.5-420.3')
+    compileOnly fg.deobf('local:Patchouli:1.16.4-53.3')
+    compileOnly fg.deobf('local:curios-forge:1.16.5-4.1.0.0')
+    compileOnly fg.deobf('local:jei-1.16.5:7.8.1.1019')
+    compileOnly fg.deobf('local:Jade:1.16.4-2.8.3')
+
+    // Runtime dependencies for the local client/server runs.
+    runtimeOnly fg.deobf('local:Botania:1.16.5-420.3')
+    runtimeOnly fg.deobf('local:Patchouli:1.16.4-53.3')
+    runtimeOnly fg.deobf('local:curios-forge:1.16.5-4.1.0.0')
+}
+
+// Expand the mod metadata templates (mods.toml / pack.mcmeta).
+def replaceProperties = [
+        minecraft_version      : minecraft_version,
+        minecraft_version_range: minecraft_version_range,
+        forge_version          : forge_version,
+        forge_version_range    : forge_version_range,
+        loader_version_range   : loader_version_range,
+        mod_id                 : mod_id,
+        mod_name               : mod_name,
+        mod_license            : mod_license,
+        mod_version            : mod_version,
+        mod_authors            : mod_authors,
+        mod_description        : mod_description
+]
+processResources {
+    inputs.properties replaceProperties
+    from 'src/main/templates'
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+        expand replaceProperties
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+jar {
+    archiveFileName = "Infwhat_Botania_Additons-${project.minecraft_version}-Forge-${project.mod_version}.jar"
+    manifest {
+        attributes([
+                "Specification-Title"     : mod_id,
+                "Specification-Vendor"    : mod_authors,
+                "Specification-Version"   : "1",
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : project.version,
+                "Implementation-Vendor"   : mod_authors
+        ])
+    }
+}
+
+jar.finalizedBy('reobfJar')

@@ -1,0 +1,557 @@
+package com.bandybus.infwhat.botania.client.screen;
+
+import com.bandybus.infwhat.botania.device.DeviceKind;
+import com.bandybus.infwhat.botania.device.DeviceState;
+import com.bandybus.infwhat.botania.device.LinkEntry;
+import com.bandybus.infwhat.botania.container.ManaDeviceContainer;
+import com.bandybus.infwhat.botania.network.ModNetwork;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
+
+import java.util.List;
+import java.util.Locale;
+
+/**
+ * Botania-styled control panel shared by the well, the beacon and the anchor.
+ *
+ * <p>The run page shows the rate, the master switch, the network label and the connection list.
+ * The well and the anchor also have a settings page for the auto-connect scan box, which is the
+ * same box drawn in the world when "Show range" is enabled.
+ */
+public class ManaDeviceScreen extends ContainerScreen<ManaDeviceContainer> {
+
+    private static final ResourceLocation TEXTURE =
+            new ResourceLocation("infwhat_botania", "textures/gui/mana_device.png");
+
+    private static final int WIDTH = 220;
+    private static final int HEIGHT = 206;
+    private static final int PAGE_SIZE = 6;
+    private static final int MAX_RATE = Integer.MAX_VALUE;
+    private static final int MAX_REACH = 8;
+    private static final int MAX_OFFSET = 8;
+
+    private static final int COLOR_TEXT = 0xFF3F2414;
+    private static final int COLOR_SUBTLE = 0xFF7A6A4A;
+    private static final int COLOR_NUMBER = 0xFF00E5FF;
+    private static final int COLOR_FRAME = 0xFF3A2112;
+    private static final int COLOR_WELL = 0xFF063F57;
+
+    private enum Page {
+        RUN,
+        SETTINGS
+    }
+
+    private Page screenPage = Page.RUN;
+    private int listPage;
+    private int requestTimer;
+
+    private TextFieldWidget rateField;
+    private TextFieldWidget reachXField;
+    private TextFieldWidget reachYField;
+    private TextFieldWidget reachZField;
+    private TextFieldWidget offsetXField;
+    private TextFieldWidget offsetYField;
+    private TextFieldWidget offsetZField;
+    private boolean showRange;
+    private boolean stateSeen;
+
+    public ManaDeviceScreen(ManaDeviceContainer menu, PlayerInventory inventory,
+                            ITextComponent title) {
+        super(menu, inventory, title);
+        this.imageWidth = WIDTH;
+        this.imageHeight = HEIGHT;
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        this.rateField = field(leftPos + 74, topPos + 29, 56, 7, false,
+                new TranslationTextComponent("gui.infwhat_botania.rate"));
+        this.reachXField = field(leftPos + 58, topPos + 34, 28, 1, false,
+                new StringTextComponent("X"));
+        this.reachYField = field(leftPos + 98, topPos + 34, 28, 1, false,
+                new StringTextComponent("Y"));
+        this.reachZField = field(leftPos + 138, topPos + 34, 28, 1, false,
+                new StringTextComponent("Z"));
+        this.offsetXField = field(leftPos + 58, topPos + 64, 28, 2, true,
+                new StringTextComponent("X"));
+        this.offsetYField = field(leftPos + 98, topPos + 64, 28, 2, true,
+                new StringTextComponent("Y"));
+        this.offsetZField = field(leftPos + 138, topPos + 64, 28, 2, true,
+                new StringTextComponent("Z"));
+        this.requestTimer = 0;
+
+        DeviceState state = menu.state();
+        this.rateField.setValue(state == null ? "" : Integer.toString(state.effectiveRate()));
+        this.showRange = state == null || state.showRange();
+        populateFromState();
+        applyVisibility();
+        ModNetwork.CHANNEL.sendToServer(new ModNetwork.RequestState(menu.pos()));
+    }
+
+    private TextFieldWidget field(int x, int y, int width, int maxLength, boolean signed,
+                                  ITextComponent narration) {
+        TextFieldWidget box = new TextFieldWidget(this.font, x, y, width, 12, narration);
+        box.setBordered(false);
+        box.setTextColor(0xFFBFF8FF);
+        box.setMaxLength(maxLength);
+        box.setFilter(text -> text.chars().allMatch(c -> Character.isDigit(c)
+                || (signed && c == '-')));
+        addButton(box);
+        return box;
+    }
+
+    private void applyVisibility() {
+        boolean settings = screenPage == Page.SETTINGS;
+        rateField.setVisible(!settings);
+        setVisible(settings, reachXField, reachYField, reachZField,
+                offsetXField, offsetYField, offsetZField);
+    }
+
+    private static void setVisible(boolean visible, TextFieldWidget... boxes) {
+        for (TextFieldWidget box : boxes) {
+            box.setVisible(visible);
+        }
+    }
+
+    private void populateFromState() {
+        DeviceState state = menu.state();
+        if (state == null) {
+            return;
+        }
+        setIfIdle(reachXField, Integer.toString(state.reachX()));
+        setIfIdle(reachYField, Integer.toString(state.reachY()));
+        setIfIdle(reachZField, Integer.toString(state.reachZ()));
+        setIfIdle(offsetXField, Integer.toString(state.offsetX()));
+        setIfIdle(offsetYField, Integer.toString(state.offsetY()));
+        setIfIdle(offsetZField, Integer.toString(state.offsetZ()));
+    }
+
+    private static void setIfIdle(TextFieldWidget box, String value) {
+        if (!box.isFocused() && !box.getValue().equals(value)) {
+            box.setValue(value);
+        }
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (++requestTimer >= 20) {
+            requestTimer = 0;
+            ModNetwork.CHANNEL.sendToServer(new ModNetwork.RequestState(menu.pos()));
+        }
+        DeviceState state = menu.state();
+        if (state == null) {
+            return;
+        }
+        if (!stateSeen) {
+            stateSeen = true;
+            rateField.setValue(Integer.toString(state.effectiveRate()));
+            showRange = state.showRange();
+        }
+        populateFromState();
+        int pages = pageCount(state.links().size());
+        if (listPage >= pages) {
+            listPage = pages - 1;
+        }
+        if (!rateField.isFocused()) {
+            String value = Integer.toString(state.effectiveRate());
+            if (!rateField.getValue().equals(value)) {
+                rateField.setValue(value);
+            }
+        }
+    }
+
+    @Override
+    protected void renderBg(MatrixStack pose, float partialTick, int mouseX, int mouseY) {
+        this.minecraft.getTextureManager().bind(TEXTURE);
+        this.blit(pose, leftPos, topPos, 0, 0, WIDTH, HEIGHT);
+        if (screenPage == Page.RUN) {
+            drawFieldFrame(pose, leftPos + 72, topPos + 27, 60, 16);
+        } else {
+            drawFieldFrame(pose, leftPos + 56, topPos + 32, 32, 16);
+            drawFieldFrame(pose, leftPos + 96, topPos + 32, 32, 16);
+            drawFieldFrame(pose, leftPos + 136, topPos + 32, 32, 16);
+            drawFieldFrame(pose, leftPos + 56, topPos + 62, 32, 16);
+            drawFieldFrame(pose, leftPos + 96, topPos + 62, 32, 16);
+            drawFieldFrame(pose, leftPos + 136, topPos + 62, 32, 16);
+        }
+    }
+
+    private void drawFieldFrame(MatrixStack pose, int x, int y, int width, int height) {
+        AbstractGui.fill(pose, x, y, x + width, y + height, COLOR_FRAME);
+        AbstractGui.fill(pose, x + 1, y + 1, x + width - 1, y + height - 1, 0xFF2E1B0F);
+        AbstractGui.fill(pose, x + 1, y + 1, x + width - 1, y + 2, 0xFF5A3A1E);
+    }
+
+    @Override
+    protected void renderLabels(MatrixStack pose, int mouseX, int mouseY) {
+        DeviceState state = menu.state();
+        DeviceKind kind = menu.kind();
+
+        font.draw(pose, kind.title(), 10, 9, COLOR_TEXT);
+        String network = state == null ? "" : state.networkName();
+        if (network == null || network.isEmpty()) {
+            network = new TranslationTextComponent("gui.infwhat_botania.network.none").getString();
+        }
+        font.draw(pose, new TranslationTextComponent(
+                "gui.infwhat_botania.network", trim(network, 132)).getString(),
+                10, 18, COLOR_SUBTLE);
+
+        if (kind.hasRange()) {
+            drawSmallButton(pose, 150, 6, screenPage == Page.SETTINGS,
+                    new TranslationTextComponent(screenPage == Page.SETTINGS
+                            ? "gui.infwhat_botania.back" : "gui.infwhat_botania.settings"));
+        }
+        drawSmallButton(pose, 188, 6, state != null && state.enabled(),
+                new TranslationTextComponent(state != null && state.enabled()
+                        ? "gui.infwhat_botania.on" : "gui.infwhat_botania.off"));
+
+        if (screenPage == Page.SETTINGS) {
+            renderSettingsPage(pose);
+        } else {
+            renderRunPage(pose, mouseX, mouseY, state, kind);
+        }
+    }
+
+    private void renderRunPage(MatrixStack pose, int mouseX, int mouseY,
+                               DeviceState state, DeviceKind kind) {
+        font.draw(pose, kind.rateLabel(), 10, 31, COLOR_TEXT);
+        font.draw(pose, "/t", 160, 31, COLOR_SUBTLE);
+        drawApplyButton(pose, 136, 27);
+
+        if (kind.showBuffer() && state != null) {
+            font.draw(pose,
+                    new TranslationTextComponent("gui.infwhat_botania.buffer"), 10, 48, COLOR_TEXT);
+            drawBufferBar(pose, 70, 45, 140, 10, state.buffer(), state.bufferMax());
+            font.draw(pose,
+                    formatMana(state.buffer()) + " / " + formatMana(state.bufferMax()),
+                    90, 47, 0xFFFFFFFF);
+        }
+
+        font.draw(pose,
+                new TranslationTextComponent("gui.infwhat_botania.links"), 10, 62, COLOR_TEXT);
+        font.draw(pose,
+                new TranslationTextComponent("gui.infwhat_botania.direction"), 188, 62, COLOR_SUBTLE);
+
+        if (state == null) {
+            return;
+        }
+        List<LinkEntry> links = state.links();
+        if (links.isEmpty()) {
+            font.draw(pose,
+                    new TranslationTextComponent("gui.infwhat_botania.no_links"), 12, 78, COLOR_SUBTLE);
+            return;
+        }
+
+        int start = listPage * PAGE_SIZE;
+        for (int row = 0; row < PAGE_SIZE; row++) {
+            int index = start + row;
+            if (index >= links.size()) {
+                break;
+            }
+            LinkEntry entry = links.get(index);
+            int y = 74 + row * 20;
+            boolean hovered = mouseX >= leftPos + 8 && mouseX < leftPos + 212
+                    && mouseY >= topPos + y && mouseY < topPos + y + 19;
+            if (hovered) {
+                AbstractGui.fill(pose, 8, y, 212, y + 19, 0x33D8B45A);
+            }
+            font.draw(pose, arrow(entry.direction()), 12, y + 8,
+                    directionColor(entry.direction()));
+            font.draw(pose, trim(entry.label(), 100), 26, y + 3, COLOR_TEXT);
+            if (entry.auto()) {
+                font.draw(pose,
+                        new TranslationTextComponent("gui.infwhat_botania.auto"),
+                        136, y + 3, 0xFF1E7F9E);
+            }
+            font.draw(pose, entry.pos().getX() + ", " + entry.pos().getY()
+                    + ", " + entry.pos().getZ(), 26, y + 12, COLOR_SUBTLE);
+            ITextComponent direction = new TranslationTextComponent(
+                    directionKey(entry.direction()));
+            font.draw(pose, direction, 212 - font.width(direction), y + 8,
+                    directionColor(entry.direction()));
+        }
+
+        int pages = pageCount(links.size());
+        if (pages > 1) {
+            this.minecraft.getTextureManager().bind(TEXTURE);
+            if (listPage > 0) {
+                this.blit(pose, 96, 194, 224, 32, 12, 12);
+            }
+            if (listPage < pages - 1) {
+                this.blit(pose, 140, 194, 238, 32, 12, 12);
+            }
+            String pageText = (listPage + 1) + "/" + pages;
+            font.draw(pose, pageText, 124 - font.width(pageText) / 2, 196, COLOR_NUMBER);
+        }
+    }
+
+    private void renderSettingsPage(MatrixStack pose) {
+        font.draw(pose,
+                new TranslationTextComponent("gui.infwhat_botania.range"), 10, 38, COLOR_TEXT);
+        font.draw(pose, "X", 60, 24, COLOR_SUBTLE);
+        font.draw(pose, "Y", 100, 24, COLOR_SUBTLE);
+        font.draw(pose, "Z", 140, 24, COLOR_SUBTLE);
+
+        font.draw(pose,
+                new TranslationTextComponent("gui.infwhat_botania.offset"), 10, 68, COLOR_TEXT);
+        font.draw(pose, "X", 60, 54, COLOR_SUBTLE);
+        font.draw(pose, "Y", 100, 54, COLOR_SUBTLE);
+        font.draw(pose, "Z", 140, 54, COLOR_SUBTLE);
+
+        font.draw(pose,
+                new TranslationTextComponent("gui.infwhat_botania.show_range"), 10, 98, COLOR_TEXT);
+        drawSmallButton(pose, 176, 95, showRange,
+                new TranslationTextComponent(showRange
+                        ? "gui.infwhat_botania.on" : "gui.infwhat_botania.off"));
+        drawWideButton(pose, 66, 120, 44, 16,
+                new TranslationTextComponent("gui.infwhat_botania.apply_settings"));
+        drawWideButton(pose, 118, 120, 60, 16,
+                new TranslationTextComponent("gui.infwhat_botania.reset_auto"));
+        font.draw(pose,
+                new TranslationTextComponent("gui.infwhat_botania.range.hint"),
+                10, 144, COLOR_SUBTLE);
+    }
+
+    private static String arrow(int direction) {
+        if (direction == LinkEntry.OUT) {
+            return "\u2192";
+        }
+        if (direction == LinkEntry.IN) {
+            return "\u2190";
+        }
+        return "\u2194";
+    }
+
+    private static String directionKey(int direction) {
+        if (direction == LinkEntry.OUT) {
+            return "gui.infwhat_botania.dir.out";
+        }
+        if (direction == LinkEntry.IN) {
+            return "gui.infwhat_botania.dir.in";
+        }
+        return "gui.infwhat_botania.dir.peer";
+    }
+
+    private static int directionColor(int direction) {
+        if (direction == LinkEntry.OUT) {
+            return 0xFF1E7F9E;
+        }
+        if (direction == LinkEntry.IN) {
+            return 0xFF8A6A1E;
+        }
+        return 0xFF5A4A8A;
+    }
+
+    private void drawSmallButton(MatrixStack pose, int x, int y, boolean on, ITextComponent label) {
+        this.minecraft.getTextureManager().bind(TEXTURE);
+        this.blit(pose, x, y, 224, on ? 0 : 16, 24, 14);
+        int color = on ? 0xFFE8FFD8 : 0xFFE0D6BE;
+        font.draw(pose, label, x + 12 - font.width(label) / 2, y + 3, color);
+    }
+
+    private void drawApplyButton(MatrixStack pose, int x, int y) {
+        drawWideButton(pose, x, y, 18, 16,
+                new TranslationTextComponent("gui.infwhat_botania.apply"));
+    }
+
+    private void drawWideButton(MatrixStack pose, int x, int y, int width, int height,
+                                ITextComponent label) {
+        AbstractGui.fill(pose, x, y, x + width, y + height, COLOR_FRAME);
+        AbstractGui.fill(pose, x + 1, y + 1, x + width - 1, y + height - 1, 0xFFC9A24A);
+        AbstractGui.fill(pose, x + 1, y + 1, x + width - 1, y + 2, 0xFFF7E3A1);
+        font.draw(pose, label, x + width / 2 - font.width(label) / 2, y + 4,
+                COLOR_TEXT);
+    }
+
+    private void drawBufferBar(MatrixStack pose, int x, int y, int width, int height,
+                               long value, long max) {
+        AbstractGui.fill(pose, x, y, x + width, y + height, COLOR_FRAME);
+        AbstractGui.fill(pose, x + 1, y + 1, x + width - 1, y + height - 1, COLOR_WELL);
+        if (max > 0L) {
+            int filled = (int) Math.round((width - 2) * Math.min(1.0D, value / (double) max));
+            if (filled > 0) {
+                this.fillGradient(pose, x + 1, y + 1, x + 1 + filled, y + height - 1,
+                        0xFF7EEAFF, 0xFF00C6FF);
+            }
+        }
+    }
+
+    private static String formatMana(long value) {
+        if (value >= 1_000_000L) {
+            return String.format(Locale.ROOT, "%.1fM", value / 1_000_000.0D);
+        }
+        if (value >= 1_000L) {
+            return String.format(Locale.ROOT, "%.1fk", value / 1_000.0D);
+        }
+        return Long.toString(value);
+    }
+
+    private String trim(String text, int maxWidth) {
+        if (font.width(text) <= maxWidth) {
+            return text;
+        }
+        return font.plainSubstrByWidth(text, maxWidth - font.width("...")) + "...";
+    }
+
+    private static int pageCount(int size) {
+        return Math.max(1, (size + PAGE_SIZE - 1) / PAGE_SIZE);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        int x = (int) mouseX - leftPos;
+        int y = (int) mouseY - topPos;
+        DeviceState state = menu.state();
+        if (button == 0 && x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT) {
+            rateField.setFocus(false);
+            if (screenPage == Page.SETTINGS) {
+                TextFieldWidget[] boxes = {reachXField, reachYField, reachZField,
+                        offsetXField, offsetYField, offsetZField};
+                for (TextFieldWidget box : boxes) {
+                    box.setFocus(false);
+                }
+            }
+            if (menu.kind().hasRange() && x >= 150 && x < 174 && y >= 6 && y < 20) {
+                screenPage = screenPage == Page.RUN ? Page.SETTINGS : Page.RUN;
+                if (screenPage == Page.SETTINGS && state != null) {
+                    showRange = state.showRange();
+                }
+                applyVisibility();
+                populateFromState();
+                return true;
+            }
+            if (x >= 188 && x < 212 && y >= 6 && y < 20) {
+                ModNetwork.CHANNEL.sendToServer(new ModNetwork.ToggleEnabled(menu.pos()));
+                return true;
+            }
+            if (screenPage == Page.SETTINGS) {
+                if (x >= 176 && x < 200 && y >= 95 && y < 109) {
+                    showRange = !showRange;
+                    return true;
+                }
+                if (x >= 66 && x < 110 && y >= 120 && y < 136) {
+                    applySettings();
+                    return true;
+                }
+                if (x >= 118 && x < 178 && y >= 120 && y < 136) {
+                    ModNetwork.CHANNEL.sendToServer(new ModNetwork.ClearExcluded(menu.pos()));
+                    return true;
+                }
+            } else {
+                if (x >= 136 && x < 154 && y >= 27 && y < 43) {
+                    applyRate();
+                    return true;
+                }
+                if (state != null) {
+                    List<LinkEntry> links = state.links();
+                    int pages = pageCount(links.size());
+                    if (pages > 1) {
+                        if (listPage > 0 && x >= 96 && x < 108 && y >= 194 && y < 206) {
+                            listPage--;
+                            return true;
+                        }
+                        if (listPage < pages - 1 && x >= 140 && x < 152 && y >= 194 && y < 206) {
+                            listPage++;
+                            return true;
+                        }
+                    }
+                }
+            }
+            super.mouseClicked(mouseX, mouseY, button);
+            return true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        DeviceState state = menu.state();
+        if (screenPage == Page.RUN && state != null) {
+            double localX = mouseX - leftPos;
+            double localY = mouseY - topPos;
+            if (localX >= 8 && localX < 212 && localY >= 72 && localY < 194) {
+                int pages = pageCount(state.links().size());
+                if (delta < 0 && listPage < pages - 1) {
+                    listPage++;
+                    return true;
+                }
+                if (delta > 0 && listPage > 0) {
+                    listPage--;
+                    return true;
+                }
+            }
+        }
+        return super.mouseScrolled(mouseX, mouseY, delta);
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (keyCode == 257 || keyCode == 335) {
+            if (rateField.isFocused()) {
+                applyRate();
+                rateField.setFocus(false);
+                return true;
+            }
+            if (reachXField.isFocused() || reachYField.isFocused() || reachZField.isFocused()
+                    || offsetXField.isFocused() || offsetYField.isFocused()
+                    || offsetZField.isFocused()) {
+                applySettings();
+                return true;
+            }
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    private void applyRate() {
+        String text = rateField.getValue();
+        if (text.isEmpty()) {
+            return;
+        }
+        int value;
+        try {
+            value = Integer.parseInt(text);
+        } catch (NumberFormatException exception) {
+            return;
+        }
+        value = MathHelper.clamp(value, 0, MAX_RATE);
+        rateField.setValue(Integer.toString(value));
+        ModNetwork.CHANNEL.sendToServer(new ModNetwork.SetRate(menu.pos(), value));
+    }
+
+    private void applySettings() {
+        DeviceState state = menu.state();
+        int fallbackX = state == null ? 1 : state.reachX();
+        int fallbackY = state == null ? 1 : state.reachY();
+        int fallbackZ = state == null ? 1 : state.reachZ();
+        int reachX = parseField(reachXField, fallbackX, 0, MAX_REACH);
+        int reachY = parseField(reachYField, fallbackY, 0, MAX_REACH);
+        int reachZ = parseField(reachZField, fallbackZ, 0, MAX_REACH);
+        int offsetX = parseField(offsetXField, 0, -MAX_OFFSET, MAX_OFFSET);
+        int offsetY = parseField(offsetYField, 0, -MAX_OFFSET, MAX_OFFSET);
+        int offsetZ = parseField(offsetZField, 0, -MAX_OFFSET, MAX_OFFSET);
+        ModNetwork.CHANNEL.sendToServer(new ModNetwork.SetRange(menu.pos(),
+                reachX, reachY, reachZ, offsetX, offsetY, offsetZ, showRange));
+    }
+
+    private static int parseField(TextFieldWidget box, int fallback, int min, int max) {
+        try {
+            int value = Integer.parseInt(box.getValue());
+            int clamped = MathHelper.clamp(value, min, max);
+            box.setValue(Integer.toString(clamped));
+            return clamped;
+        } catch (NumberFormatException exception) {
+            box.setValue(Integer.toString(fallback));
+            return fallback;
+        }
+    }
+}

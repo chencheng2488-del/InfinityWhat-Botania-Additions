@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "LML",
+    "MRM",
+    "LML"
+  ],
+  "key": {
+    "L": { "item": "botania:livingrock" },
+    "M": { "item": "botania:manasteel_ingot" },
+    "R": { "item": "botania:rune_mana" }
+  },
+  "result": { "item": "infwhat_botania:rune_accelerator" }
+}

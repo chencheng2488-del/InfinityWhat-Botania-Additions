@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "LGL",
+    "GMG",
+    "LGL"
+  ],
+  "key": {
+    "L": {
+      "item": "botania:livingrock"
+    },
+    "G": {
+      "item": "botania:mana_powder"
+    },
+    "M": {
+      "item": "botania:mana_diamond"
+    }
+  },
+  "result": {
+    "item": "infwhat_botania:mana_well"
+  }
+}

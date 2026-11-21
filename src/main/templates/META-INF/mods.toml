@@ -1,0 +1,46 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+logoFile="logo.png"
+authors="${mod_authors}"
+description="${mod_description}"
+
+[[dependencies.infwhat_botania]]
+    modId="forge"
+    mandatory=true
+    versionRange="${forge_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.infwhat_botania]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.infwhat_botania]]
+    modId="botania"
+    mandatory=true
+    versionRange="[1.16.5-420,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.infwhat_botania]]
+    modId="infwhat"
+    mandatory=false
+    versionRange="[2.2.0,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.infwhat_botania]]
+    modId="jei"
+    mandatory=false
+    versionRange="[7,)"
+    ordering="AFTER"
+    side="CLIENT"
