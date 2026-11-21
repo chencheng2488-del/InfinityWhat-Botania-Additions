@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "botania:items/floral_fertilizer",
+    "layer1": "infwhat_botania:item/everlasting_fertilizer_overlay"
+  }
+}

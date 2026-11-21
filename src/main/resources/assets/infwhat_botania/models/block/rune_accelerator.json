@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "infwhat_botania:block/rune_accelerator_side",
+    "down": "infwhat_botania:block/accelerator_bottom",
+    "up": "infwhat_botania:block/rune_accelerator_top",
+    "north": "infwhat_botania:block/rune_accelerator_side",
+    "south": "infwhat_botania:block/rune_accelerator_front",
+    "east": "infwhat_botania:block/rune_accelerator_side",
+    "west": "infwhat_botania:block/rune_accelerator_side"
+  }
+}

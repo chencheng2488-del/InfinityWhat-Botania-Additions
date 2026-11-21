@@ -1,0 +1,90 @@
+buildscript {
+    repositories {
+        maven { url = 'https://maven.minecraftforge.net/' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'eclipse'
+
+version = '1.0.0'
+group = 'com.bandybus.infwhat.botania'
+archivesBaseName = 'Infwhat_Botania_Additons-1.12.2-Forge'
+
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
+
+minecraft {
+    mappings channel: 'stable', version: '39-1.12'
+
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+        }
+        server {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+    // Botania / JEI 1.12.2 artifacts.
+    maven { url = 'https://maven.blamejared.com' }
+    flatDir { dirs 'libs' }
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2860'
+
+    // Required at runtime, compile-only here: never bundled into the add-on jar.
+    compileOnly fg.deobf('local:Botania-1.12.2:1.10-364.4')
+    // Optional JEI integration; compile-only, never bundled. The 1.12 JEI API is only used by
+    // the @JEIPlugin class, which JEI loads on the client when it is installed.
+    compileOnly files('libs/jei_1.12.2-4.16.6.1033.jar')
+}
+
+jar {
+    manifest {
+        attributes([
+                "Specification-Title"     : "infwhat_botania",
+                "Specification-Vendor"    : "bandybus",
+                "Specification-Version"   : "1",
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : "${version}",
+                "Implementation-Vendor"   : "bandybus",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+}
+
+jar.finalizedBy('reobfJar')
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+// Deploy the loadable jar to the shared 1.12.2 test instance.
+task deployToXrk {
+    dependsOn 'reobfJar'
+    doLast {
+        copy {
+            from "build/libs/Infwhat_Botania_Additons-1.12.2-Forge-${project.version}.jar"
+            into 'D:/xrk/versions/1.12.2-Forge_14.23.5.2864/mods'
+        }
+    }
+}
+
+// Allow the dedicated server run to receive console commands from stdin. The ForgeGradle run
+// task is created late, so match it lazily instead of looking it up during configuration.
+tasks.matching { it.name == 'runServer' }.all {
+    standardInput = System.in
+}
