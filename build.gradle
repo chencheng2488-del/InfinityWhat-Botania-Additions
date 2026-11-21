@@ -1,0 +1,62 @@
+buildscript {
+    repositories {
+        maven { url = 'https://maven.minecraftforge.net/' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+    }
+}
+
+apply plugin: 'forge'
+
+version = '1.0.0'
+group = 'com.bandybus.infwhat.botania'
+archivesBaseName = 'Infwhat_Botania_Additons-1.7.10-Forge'
+
+sourceCompatibility = targetCompatibility = '1.8'
+
+minecraft {
+    version = '1.7.10-10.13.4.1614-1.7.10'
+    runDir = 'run'
+    mappings = 'stable_12'
+}
+
+dependencies {
+    // Compile-only: Botania is required at runtime but is never bundled into this add-on.
+    compile files('libs/Botania-r1.8-249.jar')
+    // Optional HUD integration (the Jade equivalent for 1.7.10).
+    compile files('libs/Waila-1.5.10_1.7.10.jar')
+}
+
+/*
+ * The legacy Mojang S3 endpoints ForgeGradle 1.2 uses have been retired. The matching files are
+ * pre-seeded in the ForgeGradle cache and are picked up by the merge and deobfuscation steps.
+ */
+afterEvaluate {
+    ['downloadClient', 'downloadServer', 'getVersionJson'].each { name ->
+        def downloadTask = tasks.findByName(name)
+        if (downloadTask != null) {
+            downloadTask.enabled = false
+        }
+    }
+}
+
+jar {
+    archiveName = "Infwhat_Botania_Additons-1.7.10-Forge-${version}.jar"
+    manifest {
+        attributes([
+                "Specification-Title"     : "infwhat_botania",
+                "Specification-Vendor"    : "bandybus",
+                "Specification-Version"   : "1",
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : "${version}",
+                "Implementation-Vendor"   : "bandybus",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
