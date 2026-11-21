@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " G ",
+    "GDG",
+    " G "
+  ],
+  "key": {
+    "G": {
+      "item": "botania:life_essence"
+    },
+    "D": {
+      "item": "botania:mana_diamond"
+    }
+  },
+  "result": {
+    "item": "infwhat_botania:gaia_charm"
+  }
+}

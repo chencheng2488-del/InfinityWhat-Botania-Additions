@@ -1,0 +1,170 @@
+plugins {
+    id 'idea'
+    id 'java-library'
+    id 'maven-publish'
+    id 'net.neoforged.moddev.legacyforge' version '2.0.148'
+}
+
+tasks.named('wrapper', Wrapper).configure {
+    distributionType = Wrapper.DistributionType.BIN
+}
+
+version = mod_version
+group = mod_group_id
+
+repositories {
+    mavenCentral()
+    maven {
+        url = 'https://maven.minecraftforge.net'
+    }
+    maven {
+        // Botania's official Maven.
+        url = 'https://maven.blamejared.com'
+    }
+    mavenLocal()
+}
+
+base {
+    archivesName = "Infwhat_Botania_Additions_${project.minecraft_version}Forge_${project.mod_version}"
+}
+
+tasks.named('jar', Jar).configure {
+    archiveFileName = "Infwhat_Botania_Additions-${project.minecraft_version}-Forge-${project.mod_version}.jar"
+    // Forge 1.20.1 reads mixin configs from the jar manifest, not from mods.toml.
+    manifest {
+        attributes 'MixinConfigs': 'infwhat_botania.mixins.json'
+    }
+}
+
+tasks.matching { it.name == 'reobfJar' }.configureEach {
+    archiveFileName = "Infwhat_Botania_Additions-${project.minecraft_version}-Forge-${project.mod_version}.jar"
+}
+
+// Deploy the loadable jar to the shared test/launcher directory after every assemble.
+tasks.register('deployToXrk') {
+    dependsOn 'reobfJar'
+    doLast {
+        copy {
+            from layout.buildDirectory.file(
+                    "libs/Infwhat_Botania_Additions-${project.minecraft_version}-Forge-${project.mod_version}.jar")
+            into 'D:/xrk/versions/1.20.1-Forge_47.4.29/mods'
+        }
+    }
+}
+
+tasks.named('assemble').configure {
+    dependsOn tasks.named('deployToXrk')
+}
+
+// Mojang ships Java 17 to end users in 1.20.1.
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+legacyForge {
+    enable {
+        forgeVersion = project.minecraft_version + '-' + project.forge_version
+    }
+
+    parchment {
+        mappingsVersion = project.parchment_mappings_version
+        minecraftVersion = project.parchment_minecraft_version
+    }
+
+    runs {
+        client {
+            client()
+            systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+        }
+
+        server {
+            server()
+            programArgument '--nogui'
+            systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+        }
+
+        configureEach {
+            systemProperty 'forge.logging.markers', 'REGISTRIES'
+            logLevel = org.slf4j.event.Level.DEBUG
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+sourceSets.main.resources {
+    srcDir('src/generated/resources')
+    exclude("**/.cache")
+    exclude("**/.cache/**")
+}
+
+configurations {
+    runtimeClasspath.extendsFrom localRuntime
+}
+obfuscation {
+    createRemappingConfiguration(configurations.localRuntime)
+}
+
+dependencies {
+    // Botania is required at runtime and its API/common classes are used directly.
+    // The Maven artifact is compile-only and is never bundled into this add-on.
+    compileOnly "vazkii.botania:Botania:${botania_version}"
+}
+
+// The JEI API is compiled against from a local copy because the NeoForged Maven is unreachable
+// here. It is compile-only and never bundled; JEI itself stays an optional runtime dependency.
+tasks.named('compileJava', JavaCompile).configure {
+    classpath += files('libs/jei-1.20.1-forge-15.74.0.234.jar')
+}
+
+var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
+    var replaceProperties = [
+            minecraft_version        : minecraft_version,
+            minecraft_version_range  : minecraft_version_range,
+            forge_version            : forge_version,
+            forge_version_range      : forge_version_range,
+            loader_version_range     : loader_version_range,
+            mod_id                   : mod_id,
+            mod_name                 : mod_name,
+            mod_license              : mod_license,
+            mod_version              : mod_version,
+            mod_authors              : mod_authors,
+            mod_description          : mod_description
+    ]
+    inputs.properties replaceProperties
+    expand replaceProperties
+    from "src/main/templates"
+    into "build/generated/sources/modMetadata"
+}
+sourceSets.main.resources.srcDir generateModMetadata
+legacyForge.ideSyncTask generateModMetadata
+
+publishing {
+    publications {
+        register('mavenJava', MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url "file://${project.projectDir}/repo"
+        }
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
+}
+
+processResources {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}

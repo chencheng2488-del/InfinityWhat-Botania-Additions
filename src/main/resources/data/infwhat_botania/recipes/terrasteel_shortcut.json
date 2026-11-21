@@ -1,0 +1,18 @@
+{
+  "type": "infwhat_botania:gated_terra_plate",
+  "ingredients": [
+    {
+      "item": "minecraft:iron_ingot"
+    },
+    {
+      "item": "minecraft:diamond"
+    },
+    {
+      "item": "botania:mana_diamond"
+    }
+  ],
+  "mana": 100000,
+  "result": {
+    "item": "botania:terrasteel_ingot"
+  }
+}
