@@ -2,6 +2,8 @@
 
 简体中文 | [English](#english)
 
+> **当前 `main` 分支对应 Minecraft 1.20.1 / Forge。** 其他版本请切换到对应分支。
+
 Infinity What 的可选 Botania 附属。它把 Botania 里重复出现的花田供魔、发射器布线、符文/泰拉钢读条、盖亚召唤等流程，做成可配置的机器与物品。本体 `infwhat` 不依赖 Botania，只有本附属需要。
 
 ## 功能
@@ -22,15 +24,15 @@ Infinity What 的可选 Botania 附属。它把 Botania 里重复出现的花田
 
 ## 支持的版本
 
-本仓库的每个分支都是一个**对应单个 Minecraft 版本 + 加载器的完整独立工程**。选择匹配的分支构建，或直接从 Releases 下载 jar。
+本仓库的每个分支都是一个**对应单个 Minecraft 版本 + 加载器的完整独立工程**；`main` 即 1.20.1 Forge。选择匹配的分支构建，或直接从 Releases 下载 jar。
 
 | 分支 | Minecraft | 加载器 | Botania | Infinity What | Java |
 |---|---|---|---|---|---|
+| `main` | 1.20.1 | Forge 47.4.10 | 1.20.1-456-FORGE | 2.2.0 | 17 |
 | `1.7.10-Forge` | 1.7.10 | Forge 10.13.4.1614 | r1.8-249 | 2.2.0 | 8 |
 | `1.12.2-Forge` | 1.12.2 | Forge 14.23.5.2860 | 1.12.2-1.10-364.4 | 2.2.0 | 8 |
 | `1.16.5-Forge` | 1.16.5 | Forge 36.2.42 | 1.16.5-420.3 | 2.2.0 | 8 |
 | `1.18.2-Forge` | 1.18.2 | Forge 40.3.12 | 1.18.2-435 | 2.2.0 | 17 |
-| `1.20.1-Forge` | 1.20.1 | Forge 47.4.10 | 1.20.1-456-FORGE | 2.2.0 | 17 |
 | `1.20.1-Fabric` | 1.20.1 | Fabric Loader 0.20.1 | 1.20.1-456-FABRIC | 2.2.0 | 17 |
 
 ## 安装
@@ -41,7 +43,7 @@ Infinity What 的可选 Botania 附属。它把 Botania 里重复出现的花田
    - 1.7.10：Baubles 1.0.1.16；可选 NEI + Waila。
    - 1.12.2：Baubles 1.12-1.5.2；可选 JEI。
    - 1.16.5 / 1.18.2：Patchouli、Curios；可选 JEI + Jade。
-   - 1.20.1 Forge：Patchouli、Curios；可选 JEI + Jade。
+   - 1.20.1 Forge（`main`）：Patchouli、Curios；可选 JEI + Jade。
    - 1.20.1 Fabric：Fabric API；可选 JEI + Jade。
 4. 首次启动生成 `config/infwhat_botania.toml`。
 
@@ -81,7 +83,7 @@ Apache License 2.0。Botania 与 Infinity What 的代码和资源归各自作者
 
 **Infinity What: Botania Additions** is an optional Botania add-on for Infinity What. It turns Botania's repeated mana infrastructure into configurable machines: a finite mana well, wireless mana beacon/anchor endpoints, ranged rune/terrasteel/flower accelerators, a Gaia beacon and charm, a rune template and an everlasting fertilizer.
 
-The core mod `infwhat` does not depend on Botania; only this add-on does. Each branch of this repository is a complete standalone project for one Minecraft version and loader. Pick the branch that matches your game, or download the jar from Releases.
+The `main` branch is the Minecraft 1.20.1 Forge project; every other branch is a complete standalone project for one Minecraft version and loader. Pick the branch that matches your game, or download the jar from Releases.
 
 Compatibility: Botania and Infinity What are required; JEI, Jade and Waila are optional (1.7.10 uses NEI + Waila). Defaults are conservative: the mana well is disabled on dedicated servers and all progress-skipping recipes are off unless enabled in `config/infwhat_botania.toml`.
 
