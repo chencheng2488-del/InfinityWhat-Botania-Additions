@@ -7,7 +7,7 @@ version = project.mod_version
 group = project.mod_group_id
 
 base {
-    archivesName = "Infwhat_Botania_Additons-${project.minecraft_version}-Fabric"
+    archivesName = "Infwhat_Botania_Additions-${project.minecraft_version}-Fabric"
 }
 
 repositories {
@@ -68,7 +68,7 @@ tasks.register('deployToXrk') {
     doLast {
         copy {
             from layout.buildDirectory.file(
-                    "libs/Infwhat_Botania_Additons-${project.minecraft_version}-Fabric-${project.mod_version}.jar")
+                    "libs/Infwhat_Botania_Additions-${project.minecraft_version}-Fabric-${project.mod_version}.jar")
             into 'D:/xrk/versions/1.20.1-Fabric 0.20.1/mods'
         }
     }
