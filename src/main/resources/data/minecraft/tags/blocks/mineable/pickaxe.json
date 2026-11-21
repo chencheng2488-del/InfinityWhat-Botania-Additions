@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "infwhat_botania:mana_well",
+    "infwhat_botania:mana_beacon",
+    "infwhat_botania:mana_anchor",
+    "infwhat_botania:rune_accelerator",
+    "infwhat_botania:terrasteel_accelerator",
+    "infwhat_botania:floral_overclock",
+    "infwhat_botania:gaia_beacon"
+  ]
+}

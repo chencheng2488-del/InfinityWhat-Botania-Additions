@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "LPL",
+    "PMP",
+    "LPL"
+  ],
+  "key": {
+    "L": {
+      "item": "botania:livingrock"
+    },
+    "P": {
+      "item": "minecraft:paper"
+    },
+    "M": {
+      "item": "botania:mana_diamond"
+    }
+  },
+  "result": {
+    "item": "infwhat_botania:rune_template"
+  }
+}

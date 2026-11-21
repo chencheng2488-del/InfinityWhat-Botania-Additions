@@ -1,0 +1,25 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_life_essence": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          { "items": ["botania:life_essence"] }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "infwhat_botania:gaia_charm"
+      }
+    }
+  },
+  "requirements": [
+    ["has_life_essence", "has_the_recipe"]
+  ],
+  "rewards": {
+    "recipes": ["infwhat_botania:gaia_charm"]
+  }
+}

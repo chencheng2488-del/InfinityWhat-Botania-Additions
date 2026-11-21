@@ -1,0 +1,222 @@
+{
+	"format_version": "26.3",
+	"credit": "Made with Blockbench",
+	"parent": "minecraft:block/block",
+	"textures": {
+		"stone": "infwhat_botania:block/mana_stone",
+		"particle": "infwhat_botania:block/mana_well_wall",
+		"wall": "infwhat_botania:block/mana_well_wall",
+		"rim": "infwhat_botania:block/mana_well_rim",
+		"pool": "infwhat_botania:block/mana_well_pool",
+		"metal": "infwhat_botania:block/mana_metal"
+	},
+	"elements": [
+		{
+			"name": "base",
+			"from": [0, 0, 0],
+			"to": [16, 3, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 3], "texture": "#stone"},
+				"east": {"uv": [0, 0, 16, 3], "texture": "#stone"},
+				"south": {"uv": [0, 0, 16, 3], "texture": "#stone"},
+				"west": {"uv": [0, 0, 16, 3], "texture": "#stone"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#stone"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#stone"}
+			}
+		},
+		{
+			"name": "mana_pool",
+			"from": [3, 3, 3],
+			"to": [13, 8, 13],
+			"faces": {
+				"north": {"uv": [0, 0, 10, 5], "texture": "#stone"},
+				"east": {"uv": [0, 0, 10, 5], "texture": "#stone"},
+				"south": {"uv": [0, 0, 10, 5], "texture": "#stone"},
+				"west": {"uv": [0, 0, 10, 5], "texture": "#stone"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#pool", "shade": false},
+				"down": {"uv": [0, 0, 10, 10], "texture": "#stone"}
+			}
+		},
+		{
+			"name": "wall1",
+			"from": [13, 3, 3],
+			"to": [16, 10, 13],
+			"faces": {
+				"north": {"uv": [0, 0, 3, 7], "texture": "#wall"},
+				"east": {"uv": [3, 0, 13, 7], "texture": "#wall"},
+				"south": {"uv": [0, 0, 3, 7], "texture": "#wall"},
+				"west": {"uv": [0, 0, 10, 7], "texture": "#wall"},
+				"up": {"uv": [0, 0, 3, 10], "texture": "#wall"},
+				"down": {"uv": [0, 0, 3, 10], "texture": "#wall"}
+			}
+		},
+		{
+			"name": "wall2",
+			"from": [0, 3, 0],
+			"to": [16, 10, 3],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 7], "texture": "#wall"},
+				"east": {"uv": [0, 0, 3, 7], "texture": "#wall"},
+				"south": {"uv": [0, 0, 16, 7], "texture": "#wall"},
+				"west": {"uv": [0, 0, 3, 7], "texture": "#wall"},
+				"up": {"uv": [0, 0, 16, 3], "texture": "#wall"},
+				"down": {"uv": [0, 0, 16, 3], "texture": "#wall"}
+			}
+		},
+		{
+			"name": "wall3",
+			"from": [0, 3, 13],
+			"to": [16, 10, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 7], "texture": "#wall"},
+				"east": {"uv": [0, 0, 3, 7], "texture": "#wall"},
+				"south": {"uv": [0, 0, 16, 7], "texture": "#wall"},
+				"west": {"uv": [0, 0, 3, 7], "texture": "#wall"},
+				"up": {"uv": [0, 0, 16, 3], "texture": "#wall"},
+				"down": {"uv": [0, 0, 16, 3], "texture": "#wall"}
+			}
+		},
+		{
+			"name": "wall4",
+			"from": [0, 3, 3],
+			"to": [3, 10, 13],
+			"faces": {
+				"north": {"uv": [0, 0, 3, 7], "texture": "#wall"},
+				"east": {"uv": [0, 0, 10, 7], "texture": "#wall"},
+				"south": {"uv": [0, 0, 3, 7], "texture": "#wall"},
+				"west": {"uv": [3, 0, 13, 7], "texture": "#wall"},
+				"up": {"uv": [0, 0, 3, 10], "texture": "#wall"},
+				"down": {"uv": [0, 0, 3, 10], "texture": "#wall"}
+			}
+		},
+		{
+			"name": "well_rim1",
+			"from": [13, 10, 3],
+			"to": [16, 11, 13],
+			"faces": {
+				"north": {"uv": [0, 0, 3, 1], "texture": "#rim"},
+				"east": {"uv": [0, 0, 10, 1], "texture": "#rim"},
+				"south": {"uv": [0, 0, 3, 1], "texture": "#rim"},
+				"west": {"uv": [0, 0, 10, 1], "texture": "#rim"},
+				"up": {"uv": [1, 0, 4, 10], "texture": "#rim"},
+				"down": {"uv": [0, 0, 3, 10], "texture": "#rim"}
+			}
+		},
+		{
+			"name": "well_rim2",
+			"from": [0, 10, 0],
+			"to": [16, 11, 3],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 1], "texture": "#rim"},
+				"east": {"uv": [0, 0, 3, 1], "texture": "#rim"},
+				"south": {"uv": [0, 0, 16, 1], "texture": "#rim"},
+				"west": {"uv": [0, 0, 3, 1], "texture": "#rim"},
+				"up": {"uv": [0, 2, 16, 5], "texture": "#rim"},
+				"down": {"uv": [0, 0, 16, 3], "texture": "#rim"}
+			}
+		},
+		{
+			"name": "well_rim3",
+			"from": [0, 10, 13],
+			"to": [16, 11, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 1], "texture": "#rim"},
+				"east": {"uv": [0, 0, 3, 1], "texture": "#rim"},
+				"south": {"uv": [0, 0, 16, 1], "texture": "#rim"},
+				"west": {"uv": [0, 0, 3, 1], "texture": "#rim"},
+				"up": {"uv": [0, 5, 16, 8], "texture": "#rim"},
+				"down": {"uv": [0, 0, 16, 3], "texture": "#rim"}
+			}
+		},
+		{
+			"name": "well_rim4",
+			"from": [0, 10, 3],
+			"to": [3, 11, 13],
+			"faces": {
+				"north": {"uv": [0, 0, 3, 1], "texture": "#rim"},
+				"east": {"uv": [0, 0, 10, 1], "texture": "#rim"},
+				"south": {"uv": [0, 0, 3, 1], "texture": "#rim"},
+				"west": {"uv": [0, 0, 10, 1], "texture": "#rim"},
+				"up": {"uv": [11, 5, 14, 15], "texture": "#rim"},
+				"down": {"uv": [0, 0, 3, 10], "texture": "#rim"}
+			}
+		},
+		{
+			"name": "column1",
+			"from": [0, 11, 0],
+			"to": [2, 14, 2],
+			"faces": {
+				"north": {"uv": [0, 0, 2, 3], "texture": "#metal"},
+				"east": {"uv": [0, 0, 2, 3], "texture": "#metal"},
+				"south": {"uv": [0, 0, 2, 3], "texture": "#metal"},
+				"west": {"uv": [0, 0, 2, 3], "texture": "#metal"},
+				"up": {"uv": [0, 0, 2, 2], "texture": "#metal"},
+				"down": {"uv": [0, 0, 2, 2], "texture": "#metal"}
+			}
+		},
+		{
+			"name": "column2",
+			"from": [14, 11, 0],
+			"to": [16, 14, 2],
+			"faces": {
+				"north": {"uv": [0, 0, 2, 3], "texture": "#metal"},
+				"east": {"uv": [0, 0, 2, 3], "texture": "#metal"},
+				"south": {"uv": [0, 0, 2, 3], "texture": "#metal"},
+				"west": {"uv": [0, 0, 2, 3], "texture": "#metal"},
+				"up": {"uv": [0, 0, 2, 2], "texture": "#metal"},
+				"down": {"uv": [0, 0, 2, 2], "texture": "#metal"}
+			}
+		},
+		{
+			"name": "column3",
+			"from": [0, 11, 14],
+			"to": [2, 14, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 2, 3], "texture": "#metal"},
+				"east": {"uv": [0, 0, 2, 3], "texture": "#metal"},
+				"south": {"uv": [0, 0, 2, 3], "texture": "#metal"},
+				"west": {"uv": [0, 0, 2, 3], "texture": "#metal"},
+				"up": {"uv": [0, 0, 2, 2], "texture": "#metal"},
+				"down": {"uv": [0, 0, 2, 2], "texture": "#metal"}
+			}
+		},
+		{
+			"name": "column4",
+			"from": [14, 11, 14],
+			"to": [16, 14, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 2, 3], "texture": "#metal"},
+				"east": {"uv": [0, 0, 2, 3], "texture": "#metal"},
+				"south": {"uv": [0, 0, 2, 3], "texture": "#metal"},
+				"west": {"uv": [0, 0, 2, 3], "texture": "#metal"},
+				"up": {"uv": [0, 0, 2, 2], "texture": "#metal"},
+				"down": {"uv": [0, 0, 2, 2], "texture": "#metal"}
+			}
+		}
+	],
+	"groups": [
+		0,
+		1,
+		{
+			"name": "wall",
+			"origin": [0, 0, 0],
+			"scope": 0,
+			"color": 0,
+			"children": [2, 3, 4, 5]
+		},
+		{
+			"name": "well_rim",
+			"origin": [0, 0, 0],
+			"scope": 0,
+			"color": 0,
+			"children": [6, 7, 8, 9]
+		},
+		{
+			"name": "column",
+			"origin": [0, 0, 0],
+			"scope": 0,
+			"color": 0,
+			"children": [10, 11, 12, 13]
+		}
+	]
+}

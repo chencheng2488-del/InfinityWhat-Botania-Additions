@@ -1,0 +1,25 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_livingrock": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          { "items": ["botania:livingrock"] }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "infwhat_botania:rune_template"
+      }
+    }
+  },
+  "requirements": [
+    ["has_livingrock", "has_the_recipe"]
+  ],
+  "rewards": {
+    "recipes": ["infwhat_botania:rune_template"]
+  }
+}

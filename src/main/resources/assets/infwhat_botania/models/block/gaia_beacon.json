@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "particle": "infwhat_botania:block/gaia_beacon_side",
+    "top": "infwhat_botania:block/gaia_beacon_top",
+    "bottom": "minecraft:block/obsidian",
+    "side": "infwhat_botania:block/gaia_beacon_side"
+  }
+}

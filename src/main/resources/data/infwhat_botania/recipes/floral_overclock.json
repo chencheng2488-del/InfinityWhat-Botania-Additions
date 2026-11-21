@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "LRL",
+    "RDR",
+    "LRL"
+  ],
+  "key": {
+    "L": { "item": "botania:livingwood" },
+    "R": { "item": "minecraft:redstone" },
+    "D": { "item": "botania:mana_diamond" }
+  },
+  "result": { "item": "infwhat_botania:floral_overclock" }
+}
